@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiche de Contrôle Armoire V2024</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <style>
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+  <!-- Header Sticky avec Score -->
+  <header class="sticky-header bg-slate-900 text-white shadow-lg border-b border-slate-700">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold flex items-center gap-2">
+          ⚡ Controle Armoire V2024
+        </h1>
+        <p class="text-xs text-slate-400">Système de vérification & Conformité</p>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="text-right">
+          <div class="text-xs text-slate-400">Score de conformité</div>
+          <div id="score-percentage" class="text-2xl font-black text-amber-400">100%</div>
+        </div>
+        <div id="status-badge" class="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-white shadow">
+          CONFORME
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- Formulaire d'En-tête -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h2 class="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+        📌 Informations Générales
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Client</label>
+          <input type="text" id="client" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Schneider Electric">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">N° Affaire</label>
+          <input type="text" id="affaire" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: AFF-2024-892">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Plan n° / Indice</label>
+          <div class="flex gap-2">
+            <input type="text" id="plan" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Plan n°">
+            <input type="text" id="indice" class="w-20 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Indice">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Identification Armoire / Coffret</label>
+          <input type="text" id="armoire" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: TGBT Porte Principale">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nom Câbleur</label>
+          <input type="text" id="cableur" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Jean Dupont">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nom Contrôleur</label>
+          <input type="text" id="controleur" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Marc Martin">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Type de contrôle</label>
+          <select id="typeControle" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="Contrôle Final">Contrôle Final</option>
+            <option value="Contrôle Câbleur">Contrôle Câbleur</option>
+            <option value="Modification / Problème constaté">Modification / Problème constaté</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Date du contrôle</label>
+          <input type="date" id="dateControle" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulaire des Selections -->
+    <div id="checklist-container" class="space-y-6"></div>
+
+    <!-- Actions & Téléchargements -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <span class="text-sm font-semibold text-slate-700">Rapport de Synthèse</span>
+        <p class="text-xs text-slate-500">Générez un fichier officiel .docx prêt pour transmission client.</p>
+      </div>
+      <button onclick="exportWordDocument()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center gap-2 shadow">
+        📄 Générer le Rapport Word (.docx)
+      </button>
+    </section>
+
+  </main>
+
+  <script>
+    // Structure de la Grille Officielle 2024
+    const grilleData = [
+      {
+        section: "A",
+        titre: "Aspect Extérieur – Enveloppe",
+        items: [
+          { id: "A1", label: "Vérification du bon état physique du Coffret ou de l'armoire (Rayures, chocs...)", reg: false },
+          { id: "A2", label: "Vérification du bon état du matériel installé", reg: false },
+          { id: "A3", label: "Vérification de la bonne fermeture du coffret/armoire (clé/fermeture)", reg: false },
+          { id: "A4", label: "Vérification de la fourniture de la clé ou de l'objet de déverrouillage", reg: false },
+          { id: "A5", label: "Vérification de l'étanchéité relative du coffret/armoire (plastrons/capuchons)", reg: false },
+          { id: "A6", label: "Vérification de la présence et du bon état des Presses-étoupes", reg: false },
+          { id: "A7", label: "Présence Signalisation Électrique sur face Avant", reg: true },
+          { id: "A8", label: "Présence et Fonctionnement Mécanique du sectionneur", reg: true },
+          { id: "A9", label: "Présence des repères Voyants et Boutonnerie 22,5", reg: true },
+          { id: "A10", label: "Présence de la collerette spécifique si Arrêt d'Urgence", reg: true }
+        ]
+      },
+      {
+        section: "B",
+        titre: "Équipements Intérieurs de l'Armoire",
+        items: [
+          { id: "B1", label: "Vérification du bon état du matériel installé", reg: false },
+          { id: "B2", label: "Présence de tous les capots de goulottes et bon état des goulottes", reg: false },
+          { id: "B3", label: "Bonne fixation des goulottes", reg: false },
+          { id: "B4", label: "Bonne fixation des rails et des équipements", reg: false },
+          { id: "B5", label: "Pas de fils volants dans l'armoire", reg: true },
+          { id: "B6", label: "Équipement ATEX / SI : respect des normes de montage Sécurité Intrinsèque", reg: true },
+          { id: "B7", label: "Présence d'un porte-plans", reg: false },
+          { id: "B8", label: "Présence des schémas électriques dans l'armoire", reg: true },
+          { id: "B9", label: "Mise à la terre des portes si présence d'équipements électriques", reg: true },
+          { id: "B10", label: "Présence/état du barreau de terre et serrage des connecteurs de terre", reg: true },
+          { id: "B11", label: "Identification de chaque fil câblé (pointage sur plans)", reg: false },
+          { id: "B12", label: "Serrage efficace des fils et des cosses", reg: false },
+          { id: "B13", label: "Contrôle du sertissage des embouts de câblage", reg: false },
+          { id: "B14", label: "Contrôle du sertissage des cosses", reg: false },
+          { id: "B15", label: "Un fil par borne (sauf indication du plan)", reg: false },
+          { id: "B16", label: "Couleur des fils suivant Standard Client ou Mounier", reg: false },
+          { id: "B17", label: "Nature des fils suivant Standard Client ou Mounier (ex: Sans Halogène)", reg: false },
+          { id: "B18", label: "Repérage des appareils sur l'appareil ou sur goulotte", reg: true },
+          { id: "B19", label: "Repérage des fils et câbles", reg: false },
+          { id: "B20", label: "Repérage des borniers et N° de bornes", reg: false },
+          { id: "B21", label: "Alim/Transfos : Raccordement du potentiel de référence à la terre", reg: true },
+          { id: "B22", label: "Matériel employé estampillé CE", reg: false },
+          { id: "B23", label: "Vérification nomenclature par rapport au cahier des charges", reg: false },
+          { id: "B24", label: "Présence des fusibles si Porte-Fusible", reg: false },
+          { id: "B25", label: "Autres contrôles spécifiques clients", reg: false }
+        ]
+      },
+      {
+        section: "C",
+        titre: "Essais Fonctionnels",
+        items: [
+          { id: "C1", label: "Vérification des polarités et des tensions par contrôleur universel", reg: false },
+          { id: "C2", label: "Validation du fonctionnement Voyant Sous Tension et/ou TRI-Led", reg: true },
+          { id: "C3", label: "Validation du déclenchement des Inter-Différentiels", reg: true },
+          { id: "C4", label: "Validation du fonctionnement des différentes alimentations", reg: false },
+          { id: "C5", label: "Vérification des tensions sur les répartiteurs", reg: false },
+          { id: "C6", label: "Validation du fonctionnement ventilation & thermostat", reg: false },
+          { id: "C7", label: "Validation de l'isolement diélectrique", reg: false }
+        ]
+      }
+    ];
+
+    // Objet d'état des réponses
+    const responses = {};
+
+    // Initialisation
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('dateControle').valueAsDate = new Date();
+      renderChecklist();
+      calculateScore();
+    });
+
+    function renderChecklist() {
+      const container = document.getElementById("checklist-container");
+      container.innerHTML = "";
+
+      grilleData.forEach(sec => {
+        const sectionCard = document.createElement("section");
+        sectionCard.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden";
+
+        let html = `
+          <div class="bg-slate-800 text-white px-5 py-3 font-bold flex justify-between items-center text-sm">
+            <span>SECTION ${sec.section} : ${sec.titre.toUpperCase()}</span>
+          </div>
+          <div class="divide-y divide-slate-100">
+        `;
+
+        sec.items.forEach(item => {
+          responses[item.id] = responses[item.id] || { status: "OK", comment: "" };
+
+          html += `
+            <div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-slate-800 text-sm">${item.id}. ${item.label}</span>
+                  ${item.reg ? '<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">RÉGLEMENTAIRE</span>' : ''}
+                </div>
+                <input type="text" placeholder="Ajouter une observation/réserve..." 
+                  onchange="updateComment('${item.id}', this.value)"
+                  class="mt-2 text-xs w-full max-w-lg border border-slate-200 rounded p-1.5 focus:ring-1 focus:ring-blue-500 focus:outline-none text-slate-600">
+              </div>
+
+              <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg self-start md:self-center">
+                <button onclick="setStatus('${item.id}', 'OK')" id="btn-${item.id}-OK" 
+                  class="px-3 py-1 rounded-md text-xs font-bold transition-all ${responses[item.id].status === 'OK' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}">
+                  OK
+                </button>
+                <button onclick="setStatus('${item.id}', 'NOK')" id="btn-${item.id}-NOK" 
+                  class="px-3 py-1 rounded-md text-xs font-bold transition-all ${responses[item.id].status === 'NOK' ? 'bg-rose-600 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}">
+                  NOK
+                </button>
+                <button onclick="setStatus('${item.id}', 'SO')" id="btn-${item.id}-SO" 
+                  class="px-3 py-1 rounded-md text-xs font-bold transition-all ${responses[item.id].status === 'SO' ? 'bg-slate-500 text-white shadow' : 'text-slate-600 hover:bg-slate-200'}">
+                  S.O.
+                </button>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+        sectionCard.innerHTML = html;
+        container.appendChild(sectionCard);
+      });
+    }
+
+    function setStatus(itemId, status) {
+      responses[itemId].status = status;
+      ["OK", "NOK", "SO"].forEach(s => {
+        const btn = document.getElementById(`btn-${itemId}-${s}`);
+        if (s === status) {
+          btn.className = `px-3 py-1 rounded-md text-xs font-bold transition-all ${
+            s === 'OK' ? 'bg-emerald-600 text-white shadow' :
+            s === 'NOK' ? 'bg-rose-600 text-white shadow' : 'bg-slate-500 text-white shadow'
+          }`;
+        } else {
+          btn.className = "px-3 py-1 rounded-md text-xs font-bold transition-all text-slate-600 hover:bg-slate-200";
+        }
+      });
+      calculateScore();
+    }
+
+    function updateComment(itemId, value) {
+      responses[itemId].comment = value;
+    }
+
+    function calculateScore() {
+      let totalPoints = 0;
+      let earnedPoints = 0;
+      let hasReglementaireNok = false;
+
+      grilleData.forEach(sec => {
+        sec.items.forEach(item => {
+          const res = responses[item.id];
+          if (!res || res.status === "SO") return;
+
+          const weight = item.reg ? 3 : 1;
+          totalPoints += weight;
+
+          if (res.status === "OK") {
+            earnedPoints += weight;
+          } else if (res.status === "NOK") {
+            if (item.reg) {
+              hasReglementaireNok = true;
+            }
+          }
+        });
+      });
+
+      const percentage = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 100;
+      const isConforme = !hasReglementaireNok && percentage >= 95;
+
+      const scoreElem = document.getElementById("score-percentage");
+      const badgeElem = document.getElementById("status-badge");
+
+      scoreElem.innerText = `${percentage}%`;
+
+      if (isConforme) {
+        badgeElem.innerText = "CONFORME";
+        badgeElem.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-white shadow";
+        scoreElem.className = "text-2xl font-black text-emerald-400";
+      } else {
+        badgeElem.innerText = "NON CONFORME";
+        badgeElem.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-rose-600 text-white shadow animate-pulse";
+        scoreElem.className = "text-2xl font-black text-rose-400";
+      }
+
+      return { percentage, isConforme };
+    }
+
+    // Exportation au Format Word Docx via docx.js
+    async function exportWordDocument() {
+      const { Document, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle } = docx;
+
+      const client = document.getElementById("client").value || "N/A";
+      const affaire = document.getElementById("affaire").value || "N/A";
+      const plan = document.getElementById("plan").value || "N/A";
+      const indice = document.getElementById("indice").value || "N/A";
+      const cableur = document.getElementById("cableur").value || "N/A";
+      const controleur = document.getElementById("controleur").value || "N/A";
+      const date = document.getElementById("dateControle").value || new Date().toLocaleDateString();
+
+      const { percentage, isConforme } = calculateScore();
+
+      const tableRows = [
+        new TableRow({
+          children: [
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Point de Contrôle", bold: true })] })], width: { size: 60, type: WidthType.PERCENTAGE } }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Type", bold: true })] })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Statut", bold: true })] })], width: { size: 20, type: WidthType.PERCENTAGE } }),
+          ],
+        }),
+      ];
+
+      grilleData.forEach(sec => {
+        tableRows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [new Paragraph({ children: [new TextRun({ text: `SECTION ${sec.section}: ${sec.titre}`, bold: true, color: "1E293B" })] })],
+                columnSpan: 3,
+              }),
+            ],
+          })
+        );
+
+        sec.items.forEach(item => {
+          const st = responses[item.id].status;
+          tableRows.push(
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph(`${item.id}. ${item.label}`)] }),
+                new TableCell({ children: [new Paragraph(item.reg ? "RÉGLEMENTAIRE" : "STANDARD")] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: st, bold: true, color: st === "OK" ? "059669" : st === "NOK" ? "DC2626" : "64748B" })] })] }),
+              ],
+            })
+          );
+        });
+      });
+
+      const doc = new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({ text: "FICHE DE CONTRÔLE ARMOIRE V2024", bold: true, size: 32, color: "0F172A" }),
+                ],
+              }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `Client : ${client} | Affaire : ${affaire} | Plan : ${plan} (Indice ${indice})`, size: 20 }),
+                ],
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `Câbleur : ${cableur} | Contrôleur : ${controleur} | Date : ${date}`, size: 20 }),
+                ],
+              }),
+              new Paragraph({ text: "" }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "RÉSULTAT GLOBAL : ", bold: true, size: 24 }),
+                  new TextRun({
+                    text: isConforme ? "CONFORME" : "NON CONFORME",
+                    bold: true,
+                    size: 24,
+                    color: isConforme ? "059669" : "DC2626",
+                  }),
+                  new TextRun({ text: ` (${percentage}% de conformité)`, size: 22 }),
+                ],
+              }),
+              new Paragraph({ text: "" }),
+              new Table({
+                rows: tableRows,
+                width: { size: 100, type: WidthType.PERCENTAGE },
+              }),
+            ],
+          },
+        ],
+      });
+
+      const blob = await docx.Packer.toBlob(doc);
+      saveAs(blob, `Controle_Armoire_${affaire}_${date}.docx`);
+    }
+  </script>
+</body>
+</html>
