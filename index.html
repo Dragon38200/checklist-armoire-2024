@@ -55,15 +55,6 @@
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
         }
 
-        .upload-zone {
-            border: 2px dashed rgba(56, 189, 248, 0.3);
-            transition: all 0.2s ease;
-        }
-        .upload-zone:hover, .upload-zone.dragover {
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.05);
-        }
-
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -82,45 +73,8 @@
     <!-- 3D Background Container -->
     <div id="canvas-container"></div>
 
-    <!-- ================= AUTHENTICATION MODAL ================= -->
-    <div id="auth-overlay" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl border border-slate-700/80 flex flex-col items-center relative pointer-events-auto">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/40 mb-4">
-                <i class="fa-solid fa-industry text-2xl"></i>
-            </div>
-            <span class="text-xs font-bold px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 mb-4 tracking-widest uppercase">ELEC TECH 3D</span>
-            
-            <h2 class="text-2xl font-bold text-white mb-1">Espace Sécurisé</h2>
-            <p class="text-xs text-slate-400 mb-6 text-center">Fiche de Contrôle Armoire V2024</p>
-
-            <form id="login-form" class="w-full space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Identifiant</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i class="fa-solid fa-user text-xs"></i></span>
-                        <input type="text" id="username" required placeholder="admin" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400" />
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mot de passe</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i class="fa-solid fa-key text-xs"></i></span>
-                        <input type="password" id="password" required placeholder="••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400" />
-                    </div>
-                </div>
-                <div id="login-error" class="text-xs text-red-400 hidden text-center bg-red-950/40 py-2 rounded-lg border border-red-900/50">
-                    Identifiant ou mot de passe incorrect (admin / admin)
-                </div>
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-cyan-500/30 transition text-sm mt-2 pointer-events-auto">
-                    Se connecter <i class="fa-solid fa-arrow-right ml-1"></i>
-                </button>
-            </form>
-            <div class="mt-6 text-[11px] text-slate-500 text-center">Démo : <span class="text-cyan-400 font-mono">admin</span> / <span class="text-cyan-400 font-mono">admin</span></div>
-        </div>
-    </div>
-
-    <!-- ================= MAIN APPLICATION CONTAINER ================= -->
-    <div id="main-app" class="hidden relative z-10 flex flex-col gap-6 w-full max-w-6xl mx-auto pb-12 pointer-events-auto">
+    <!-- ================= MAIN APPLICATION CONTAINER (Direct Access) ================= -->
+    <div id="main-app" class="relative z-10 flex flex-col gap-6 w-full max-w-6xl mx-auto pb-12 pointer-events-auto">
         
         <!-- Header Top -->
         <header class="flex flex-wrap justify-between items-center gap-4 glass-panel p-4 md:p-5 rounded-2xl shadow-2xl">
@@ -139,9 +93,6 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <button id="btn-toggle-3d" class="glass-btn px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 text-slate-200">
                     <i class="fa-solid fa-cube text-cyan-400"></i><span>Basculer Vue 3D</span>
-                </button>
-                <button id="btn-logout" class="glass-btn px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2 text-red-400 hover:text-red-300">
-                    <i class="fa-solid fa-right-from-bracket"></i><span>Déconnexion</span>
                 </button>
             </div>
         </header>
@@ -348,31 +299,6 @@
             }
         }
 
-        const authOverlay = document.getElementById('auth-overlay');
-        const mainApp = document.getElementById('main-app');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
-
-            if (user === 'admin' && pass === 'admin') {
-                authOverlay.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                loadSavedData();
-                initChecklistUI();
-            } else {
-                loginError.classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            authOverlay.classList.remove('hidden');
-            mainApp.classList.add('hidden');
-        });
-
         let show3D = true;
         document.getElementById('btn-toggle-3d').addEventListener('click', () => {
             show3D = !show3D;
@@ -407,7 +333,7 @@
                         photosHtml += `
                             <div class="relative group w-16 h-16 rounded-lg overflow-hidden border border-slate-700 bg-slate-900">
                                 <img src="${photoData}" class="w-full h-full object-cover">
-                                <button type="button" onclick="removePhoto('${item.id}', ${pIndex})" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-150 transition">
+                                <button type="button" onclick="removePhoto('${item.id}', ${pIndex})" class="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
@@ -431,20 +357,16 @@
                                 </div>
                             </div>
 
-                            <!-- Bloc natif Photos : Glisser-déposer, Parcourir, Appareil photo -->
+                            <!-- Bloc photos natif : Parcourir / Appareil photo -->
                             <div class="pt-2 border-t border-slate-900 flex flex-wrap items-center gap-3">
                                 <div class="flex items-center gap-2 overflow-x-auto py-1" id="photos-list-${item.id}">
                                     ${photosHtml}
                                 </div>
-                                
                                 <div class="flex items-center gap-2 ml-auto">
-                                    <!-- Bouton Parcourir -->
                                     <label class="glass-btn px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-300 cursor-pointer flex items-center gap-1.5 hover:text-cyan-400">
                                         <i class="fa-solid fa-folder-open"></i> Parcourir
                                         <input type="file" accept="image/*" class="hidden" onchange="handleFileSelect(event, '${item.id}')">
                                     </label>
-
-                                    <!-- Bouton Appareil Photo natif mobile/desktop -->
                                     <label class="glass-btn px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-300 cursor-pointer flex items-center gap-1.5 hover:text-cyan-400">
                                         <i class="fa-solid fa-camera"></i> Appareil photo
                                         <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event, '${item.id}')">
@@ -484,7 +406,6 @@
         window.handleFileSelect = function(event, itemId) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
-
             const file = files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -541,4 +462,164 @@
             const armoire = document.getElementById('meta-armoire').value || "N/C";
             const cableur = document.getElementById('meta-cableur').value || "N/C";
             const controleur = document.getElementById('meta-controleur').value || "N/C";
-            const type
+            const typeControle = document.querySelector('input[name="type-controle"]:checked').value;
+
+            let total = 0, earned = 0, hasRegNok = false;
+            grilleData.forEach(sec => {
+                sec.items.forEach(item => {
+                    const resp = userResponses[item.id];
+                    if (!resp || resp.status === 'SO') return;
+                    const weight = item.reglementaire ? 3 : 1;
+                    total += weight;
+                    if (resp.status === 'OK') earned += weight;
+                    else if (resp.status === 'NOK' && item.reglementaire) hasRegNok = true;
+                });
+            });
+            const pct = total > 0 ? Math.round((earned / total) * 100) : 100;
+            const isConf = !hasRegNok && pct >= 95;
+
+            const { Document, Packer, Paragraph, TextRun, ImageRun } = window.docx;
+
+            function base64ToUint8Array(base64) {
+                const parts = base64.split(';base64,');
+                const raw = window.atob(parts[1]);
+                const rawLength = raw.length;
+                const uInt8Array = new Uint8Array(rawLength);
+                for (let i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+                return uInt8Array;
+            }
+
+            const docChildren = [
+                new Paragraph({ children: [new TextRun({ text: "RAPPORT DE CONTRÔLE ARMOIRE - V2024", bold: true, size: 32, color: "0284C7" })], spacing: { after: 200 } }),
+                new Paragraph({ children: [new TextRun({ text: `Client : `, bold: true }), new TextRun({ text: `${client}   |   ` }), new TextRun({ text: `Affaire : `, bold: true }), new TextRun({ text: `${affaire}` })], spacing: { after: 100 } }),
+                new Paragraph({ children: [new TextRun({ text: `Armoire : `, bold: true }), new TextRun({ text: `${armoire}   |   ` }), new TextRun({ text: `Plan : `, bold: true }), new TextRun({ text: `${plan} (Indice ${indice})` })], spacing: { after: 100 } }),
+                new Paragraph({ children: [new TextRun({ text: `Câbleur : `, bold: true }), new TextRun({ text: `${cableur}   |   ` }), new TextRun({ text: `Contrôleur : `, bold: true }), new TextRun({ text: `${controleur}` })], spacing: { after: 100 } }),
+                new Paragraph({ children: [new TextRun({ text: `Type de Contrôle : `, bold: true }), new TextRun({ text: `${typeControle}` })], spacing: { after: 200 } }),
+                new Paragraph({ children: [new TextRun({ text: `RÉSULTAT GLOBAL : `, bold: true }), new TextRun({ text: `${isConf ? "CONFORME" : "NON CONFORME"} (${pct}%)`, bold: true, color: isConf ? "008000" : "FF0000" })], spacing: { after: 300 } })
+            ];
+
+            grilleData.forEach(sec => {
+                docChildren.push(new Paragraph({ children: [new TextRun({ text: `SECTION ${sec.sectionId} : ${sec.title}`, bold: true, size: 24, color: "1E293B" })], spacing: { before: 200, after: 150 } }));
+
+                sec.items.forEach(item => {
+                    const resp = userResponses[item.id] || { status: "OK", comment: "", photos: [] };
+                    const statusColor = resp.status === 'OK' ? "008000" : resp.status === 'NOK' ? "FF0000" : "64748B";
+
+                    const itemParagraphs = [
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: `[${resp.status}] `, bold: true, color: statusColor }),
+                                new TextRun({ text: `${item.label} ` }),
+                                item.reglementaire ? new TextRun({ text: "[RÉGLEMENTAIRE] ", bold: true, color: "FF0000", size: 16 }) : new TextRun({ text: "" }),
+                                resp.comment ? new TextRun({ text: `\nCommentaire : ${resp.comment}`, italics: true, color: "475569" }) : new TextRun({ text: "" })
+                            ],
+                            spacing: { after: 100 }
+                        })
+                    ];
+
+                    if (resp.photos && resp.photos.length > 0) {
+                        resp.photos.forEach(photoBase64 => {
+                            try {
+                                const imgData = base64ToUint8Array(photoBase64);
+                                itemParagraphs.push(
+                                    new Paragraph({
+                                        children: [
+                                            new ImageRun({
+                                                data: imgData,
+                                                transformation: { width: 180, height: 135 }
+                                            })
+                                        ],
+                                        spacing: { after: 100 }
+                                    })
+                                );
+                            } catch(err) { console.error("Erreur image docx", err); }
+                        });
+                    }
+
+                    docChildren.push(...itemParagraphs);
+                });
+            });
+
+            const doc = new Document({ sections: [{ children: docChildren }] });
+            const blob = await Packer.toBlob(doc);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rapport_Controle_${affaire.replace(/[^a-z0-9]/gi, '_')}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        });
+
+        // ================= ANIMATION 3D THREE.JS =================
+        let scene, camera, renderer, controls;
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x090d16, 0.018);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 28);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            scene.add(new THREE.AmbientLight(0x38bdf8, 0.6));
+            const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            mainLight.position.set(15, 22, 18);
+            scene.add(mainLight);
+
+            const cabinetGroup = new THREE.Group();
+            const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.8 });
+            const plateMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.2, metalness: 0.85 });
+
+            const backEnclosure = new THREE.Mesh(new THREE.BoxGeometry(12, 18, 0.1), frameMat);
+            backEnclosure.position.set(0, 0, -2);
+            cabinetGroup.add(backEnclosure);
+
+            const plate = new THREE.Mesh(new THREE.BoxGeometry(11.2, 16.8, 0.2), plateMat);
+            plate.position.set(0, 0, -1.6);
+            cabinetGroup.add(plate);
+
+            const vfdGroup = new THREE.Group();
+            const vfdBody = new THREE.Mesh(new THREE.BoxGeometry(3.2, 5.0, 2.2), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3 }));
+            vfdGroup.add(vfdBody);
+            vfdGroup.position.set(-2.5, 4.2, -0.5);
+            cabinetGroup.add(vfdGroup);
+
+            scene.add(cabinetGroup);
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            if (controls) controls.update();
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        window.onload = function() {
+            loadSavedData();
+            initChecklistUI();
+            init3D();
+            animate3D();
+        };
+    </script>
+</body>
+</html>
